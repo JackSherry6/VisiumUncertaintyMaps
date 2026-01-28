@@ -1,0 +1,16 @@
+#!/bin/bash -l
+#$ -cwd
+#$ -P <your_project>
+#$ -l h_rt=01:00:00
+#$ -l mem_per_core=8G
+#$ -pe omp 1
+#$ -N plot_stability
+#$ -o logs
+#$ -e logs
+
+set -euo pipefail
+
+module load miniconda
+conda activate spatial_analysis_env
+
+/usr/bin/time -v python plot_stability.py
