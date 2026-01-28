@@ -1,0 +1,58 @@
+#!/bin/bash -l
+#$ -cwd
+#$ -P <your_project>
+#$ -l h_rt=02:00:00
+#$ -l mem_per_core=32G
+#$ -pe omp 1
+#$ -N pert_32gb
+#$ -o logs/perturbations_logs
+#$ -e logs/perturbations_logs
+
+set -euo pipefail
+
+module load miniconda
+conda activate spatial_analysis_env
+
+export OMP_NUM_THREADS=1
+export MKL_NUM_THREADS=1
+export OPENBLAS_NUM_THREADS=1
+export NUMEXPR_NUM_THREADS=1
+
+IDX_FILE="perturbations_32gb_indices.txt"
+
+RUN_ID=$(sed -n "${SGE_TASK_ID}p" "$IDX_FILE")
+
+if [[ -z "${RUN_ID}" ]]; then
+    echo "ERROR: No run_id for SGE_TASK_ID=${SGE_TASK_ID}" >&2
+    exit 1
+fi
+
+TASK_ID=$(python - <<EOF
+import pandas as pd
+df = pd.read_parquet("perturbations.parquet")
+matches = df.index[df["run_id"] == "${RUN_ID}"]
+if len(matches) != 1:
+    raise SystemExit(f"Expected 1 match for run_id=${RUN_ID}, found {len(matches)}")
+print(matches[0] + 1)
+EOF
+)
+
+if [[ -z "${TASK_ID}" ]]; then
+    echo "ERROR: Could not resolve TASK_ID for run_id=${RUN_ID}" >&2
+    exit 1
+fi
+
+echo "[32GB] SGE_TASK_ID=${SGE_TASK_ID} RUN_ID=${RUN_ID} TASK_ID=${TASK_ID}"
+
+/usr/bin/time -v python run_one_perturbation.py "${TASK_ID}"
+
+RET=$?
+
+OUTFILE="perturbation_outputs/${RUN_ID}.parquet"
+
+if [[ ! -f "$OUTFILE" ]]; then
+    echo "ERROR: Missing output for RUN_ID=${RUN_ID}" >&2
+    exit 2
+fi
+
+exit $RET
