@@ -1,0 +1,15 @@
+#!/bin/bash -l
+#$ -cwd
+#$ -P <your_project>
+#$ -pe omp 1
+#$ -l h_rt=01:00:00
+#$ -N make_perturbations
+#$ -o logs
+#$ -e logs
+
+set -euo pipefail
+
+module load miniconda
+conda activate spatial_analysis_env
+
+/usr/bin/time -v python make_perturbations.py
