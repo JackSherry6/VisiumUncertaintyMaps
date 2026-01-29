@@ -45,10 +45,10 @@ Attempt to create perturbations of various clustering parameters, track the clus
   </tr>
   <tr>
     <td align="center">
-      <img src="example_plots/soybean_16um_spatial_scatterplot_ambiguity.png" width="350">
+      <img src="example_plots/ovarian_cancer_16um_spatial_scatterplot_ambiguity.png" width="350">
     </td>
     <td align="center">
-      <img src="example_plots/soybean_8um_spatial_scatterplot_ambiguity.png" width="350">
+      <img src="example_plots/ovarian_cancer_8um_spatial_scatterplot_ambiguity.png" width="350">
     </td>
   </tr>
 </table>
