@@ -14,10 +14,22 @@ Spot-based spatial transcriptomics trades resolution for scale, especially in-si
 ## Solution:
 Attempt to create perturbations of various clustering parameters, track the cluster variation of each spot, and measure the consistency of each spot's neighborhood over perturbations using a kNN-type model. 
 
-### Making the Perturbations:
-...
+### Building the Perturbations (technical aspects):
+- Perturbations are defined in the config.py file and built up-front in a single table (perturbations.parquet). Each row is one fully specified clustering run (unique run_id + parameter set). This makes the experiment reproducible and lets you submit the whole grid as an array job.
+- The script takes a 1-based TASK_ID, loads exactly that row from perturbations.parquet, and runs it end-to-end. This helps with run time and makes it SGE/array-friendly.
+- The specified parameters in config.py are intentionally “reasonable workflow variations,” but they can be changed based on situational preferences.
+- Rather than hard thresholds that don’t scale across tissue/bin sizes, this pipeline computes per-run cutoffs via dataset quantiles of n_genes_by_counts and total_counts (gene_q, umi_q) instead of fixed cutoffs. This makes QC perturbations more comparable across datasets.
+- I set min_cells = max(3, int(0.01 * n_obs)) so gene filtering scales with the number of spots and remains stable across different QC stringencies.
+- Each run varies in n_hvgs which is capped by n_vars and attempts seurat_v3 with a fallback to cell_ranger. This had to be done to keep hvgs robust and prevent failure cases from biasing stability or completely breaking the clustering.
+- When smooth > 0, the pipeline constructs a grid-based spatial adjacency, degree-normalizes it, and applies it iteratively "smooth times" so each spot is updated by a weighted average of its neighbors. This is done to prevent edge spots from being systematically biased because they have fewer neighbors than central spots.
+- The pipeline switched scaling for memory-heavy perturbations (n_obs > 50,000) to sparse-friendly StandardScaler(with_mean=False) (otherwise sc.pp.scale) and clip values to [-10,10]. This allows my pipeline to run reasonably with larger 8um samples.
+- n_pca varies per run but it caps at min(n_obs-1, n_vars-1) to avoid invalid PCA settings.
+- The pipeline picks the PCA solver based on dataset size, trying randomized first for large datasets (otherwise arpack), and switching to the other solver if the first one fails.
+- Random_seed is fixed to 42 for reproducibility.
+- Each run writes either a success parquet or a failure parquet with the status, error, and parameters, and it uses .started and .tmp_failure files to flag incomplete runs. Runs that end up with too few spots or too few genes/HVGs after QC are flagged for error and stopped.
+- Each perturbation writes a spot-level parquet with spot_id, cluster labels, cluster sizes, spatial coordinates, and the full parameter set to enable per-spot stability computation across runs. These parquets are merged into a single perurbations_expanded.parquet for downstream analysis.
 
-### Calculating Stability: 
+### Calculating Stability (technical aspects: 
 
 ### Speed and Memory Optimizations:
 
