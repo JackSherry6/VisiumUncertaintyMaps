@@ -15,7 +15,7 @@ conda activate spatial_analysis_env
 jid_make=$(qsub make_perturbations.qsub | awk '{print $3}' | cut -d. -f1)
 echo "Submitted make_perturbations as job $jid_make"
 
-qsub -P wax-es -hold_jid "$jid_make" -sync y -b y -o /dev/null -e /dev/null -N wait_make true >/dev/null  # Hard wait until job completes
+qsub -P <project_id> -hold_jid "$jid_make" -sync y -b y -o /dev/null -e /dev/null -N wait_make true >/dev/null  # Hard wait until job completes
 
 echo "make_perturbations completed."
 
