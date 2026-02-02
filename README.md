@@ -98,7 +98,7 @@ Create perturbations of various clustering parameters, track the cluster variati
   </tr>
   <tr>
     <td align="center">
-      <img src="example_plots/mouse_embryo_spatial_scatterplot_ambiguity.png" width="500">
+      <img src="soybean_16um_spatial_scatterplot_ambiguity.png" width="500">
     </td>
     <td align="center">
       <img src="example_plots/mouse_embryo_ambiguity_gallery.png" width="500">
