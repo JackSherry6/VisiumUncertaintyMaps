@@ -1,10 +1,11 @@
 #!/bin/bash
 set -euo pipefail
 
-EXPECTED_TOTAL=144
 START_TIME=$(date +%s)
 
+echo "$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$"
 echo "Starting perturbations pipeline @ $(date)"
+echo "$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$"
 
 mkdir -p logs/perturbations_logs
 mkdir -p figures
@@ -12,15 +13,16 @@ mkdir -p figures
 module load miniconda
 conda activate spatial_analysis_env
 
+echo "Verifying perturbations (synchronous)"
+
 jid_make=$(qsub make_perturbations.qsub | awk '{print $3}' | cut -d. -f1)
 echo "Submitted make_perturbations as job $jid_make"
 
-qsub -P <project_id> -hold_jid "$jid_make" -sync y -b y -o /dev/null -e /dev/null -N wait_make true >/dev/null  # Hard wait until job completes
+qsub -P <your_project> -hold_jid "$jid_make" -sync y -b y -o /dev/null -e /dev/null -N wait_make true >/dev/null
 
 echo "make_perturbations completed."
 
-# Validate index files: 
-echo " Validating perturbation index files:"
+echo "Validating perturbation index files"
 
 IDX_8="perturbations_8gb_indices.txt"
 IDX_16="perturbations_16gb_indices.txt"
@@ -29,6 +31,21 @@ IDX_32="perturbations_32gb_indices.txt"
 N_8GB=0
 N_16GB=0
 N_32GB=0
+
+EXPECTED_TOTAL=$(python - <<'PY'
+from config import CONFIG
+
+total = (
+    len(CONFIG["qc"]["gene_quantiles"])
+    * len(CONFIG["qc"]["umi_quantiles"])
+    * len(CONFIG["normalization"]["methods"])
+    * len(CONFIG["spatial"]["smoothing_steps"])
+    * len(CONFIG["graph"]["n_neighbors"])
+    * len(CONFIG["graph"]["leiden_res"])
+)
+print(total)
+PY
+)
 
 [[ -f "$IDX_8"  ]] && N_8GB=$(wc -l < "$IDX_8")
 [[ -f "$IDX_16" ]] && N_16GB=$(wc -l < "$IDX_16")
@@ -39,6 +56,7 @@ TOTAL=$((N_8GB + N_16GB + N_32GB))
 echo "8GB tasks : $N_8GB"
 echo "16GB tasks: $N_16GB"
 echo "32GB tasks: $N_32GB"
+echo "EXPECTED  : $EXPECTED_TOTAL"
 echo "TOTAL     : $TOTAL"
 
 if [[ "$TOTAL" -ne "$EXPECTED_TOTAL" ]]; then
@@ -47,7 +65,7 @@ if [[ "$TOTAL" -ne "$EXPECTED_TOTAL" ]]; then
     exit 1
 fi
 
-echo "Submitting perturbation array jobs:"
+echo "Submitting perturbation array jobs"
 
 HOLD_JIDS=()
 
@@ -71,12 +89,12 @@ fi
 
 HOLD_JIDS_CSV=$(IFS=, ; echo "${HOLD_JIDS[*]}")
 
-echo "Submitting merge_parquets.qsub:"
+echo "Submitting merge_parquets.qsub"
 
 jid_merge=$(qsub -hold_jid "$HOLD_JIDS_CSV" merge_parquets.qsub | awk '{print $3}' | cut -d. -f1)
 echo "merge_parquets submitted as $jid_merge"
 
-echo "Submitting stability clustering and plotting:"
+echo "Submitting stability co-clustering and plotting"
 
 jid_jaccard=$(qsub -hold_jid "$jid_merge" neighbor_jaccard_stability.qsub | awk '{print $3}' | cut -d. -f1)
 echo "neighbor_jaccard_stability submitted as $jid_jaccard"
@@ -106,6 +124,6 @@ REPORT="logs/pipeline_runtime_report.txt"
 
 cat "$REPORT"
 
-echo "$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$"
-echo "Pipeline successfully submitted"
-echo "$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$"
+echo "$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$"
+echo "Pipeline successfully submitted "
+echo "$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$"
