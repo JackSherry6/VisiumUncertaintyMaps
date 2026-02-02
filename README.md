@@ -78,19 +78,20 @@ Create perturbations of various clustering parameters, track the cluster variati
 ## Example Figures:
 <table>
   <tr>
-    <th align="center">Soybean 16 µm bins</th>
-    <th align="center">Soybean 8 µm bins</th>
+    <th align="center">Mouse Embryo Ambiguity Plot</th>
+    <th align="center">Mouse Embryo Cluster-Specific Plots</th>
   </tr>
   <tr>
     <td align="center">
-      <img src="example_plots/soybean_16um_spatial_scatterplot_ambiguity.png" width="350">
+      <img src="example_plots/mouse_embryo_spatial_scatterplot_ambiguity.png" width="500">
     </td>
     <td align="center">
-      <img src="example_plots/soybean_8um_spatial_scatterplot_ambiguity.png" width="350">
+      <img src="example_plots/mouse_embryo_ambiguity_gallery.png" width="500">
     </td>
   </tr>
 </table>
 
+## Comparing 16um and 8um
 <table>
   <tr>
     <th align="center">Ovarian Cancer 16 µm bins</th>
@@ -98,13 +99,50 @@ Create perturbations of various clustering parameters, track the cluster variati
   </tr>
   <tr>
     <td align="center">
-      <img src="example_plots/ovarian_cancer_16um_spatial_scatterplot_ambiguity.png" width="350">
+      <img src="example_plots/ovarian_cancer_16um_spatial_scatterplot_ambiguity.png" width="500">
     </td>
     <td align="center">
-      <img src="example_plots/ovarian_cancer_8um_spatial_scatterplot_ambiguity.png" width="350">
+      <img src="example_plots/ovarian_cancer_8um_spatial_scatterplot_ambiguity.png" width="500">
     </td>
   </tr>
 </table>
 
-### Why is the average ambiguity for the 8um samples higher?
-- From what I've seen from testing, the 8um samples show more ambiguous regions because finer bins have less signal, and reveal more boundary/transition structure, so cluster labels flip more across perturbations; 16 µm averages more signal and is therefore more stable. I'm currently trying to figure out ways to work around this and make the scores scale more evenly across bin sizes. 
+## Why is the average ambiguity for the 8um samples sometimes higher?
+- From what I've seen from testing, the 8um samples show more ambiguous regions because finer bins have less signal, and reveal more boundary/transition structure, so cluster labels flip more across perturbations; 16 µm averages more signal and is therefore more stable. I'm currently trying to figure out ways to work around this and make the scores scale more evenly across bin sizes.
+- In some regions, the 8 um data is more stable, and these tend to fall in clusters that are more diffuse and widely dispersed.
+
+## Comparing number of clustering variables (mouse embryo data):
+<table>
+  <tr>
+    <th align="center">144 Perturbations</th>
+    <th align="center">108 Perturbations</th>
+   <th align="center">72 Perturbations</th>
+  </tr>
+  <tr>
+    <td align="center">
+      <img src="example_plots/144params_stability_histogram_ambiguity.png" width="300">
+    </td>
+    <td align="center">
+      <img src="example_plots/108params_stability_histogram_ambiguity.png" width="300">
+    </td>
+     <td align="center">
+      <img src="example_plots/72params_stability_histogram_ambiguity.png" width="300">
+    </td>
+  </tr>
+</table>
+
+<table>
+  <tr>
+    <th align="center">48 Perturbations</th>
+    <th align="center">32 Perturbations</th>
+  </tr>
+  <tr>
+    <td align="center">
+      <img src="example_plots/48params_stability_histogram_ambiguity.png" width="300">
+    </td>
+    <td align="center">
+      <img src="example_plots/32params_stability_histogram_ambiguity.png" width="300">
+    </td>
+  </tr>
+</table>
+
