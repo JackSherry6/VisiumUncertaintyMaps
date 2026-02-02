@@ -2,6 +2,7 @@
 This pipeline performs perturbation-based clustering on 10x visium spatial transcriptomics data to quantify cluster stability and uncertainty. It takes a standard space ranger output folder and builds a set of 
 CSV/Parquet files and plots describing local/global co-clustering stability, perturbation metadata, and neighborhood-based uncertainty metrics.
 - Currently works for 16um and 8um fresh-frozen bin sizes (still being optimized for 2um and FFPE data)
+- Currently runs on shared computing clusters that utilize SGE/Grid Engine–style queueing systems (working on extending to AWS)
 
 # About:
 
