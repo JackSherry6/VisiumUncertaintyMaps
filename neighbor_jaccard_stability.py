@@ -62,6 +62,7 @@ def parse_args():
             "1.0: treat as perfectly consistent; 0.0: treat as unstable; "
             "drop: exclude those run-pairs from the average. (default: 1.0)"
         ),
+    )
     return parser.parse_args()
 
 def build_neighbors(coords: np.ndarray, k: int) -> np.ndarray:
